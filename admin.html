@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오로라닉 (AURORANIK) - 콘텐츠 관리자 대시보드</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- FAVICON (AURORANIK LOGO) -->
+  <link rel="icon" type="image/png" href="https://sorok1234.cafe24.com/auroranik-landing/assets/images/logo.png">
+  <link rel="shortcut icon" href="https://sorok1234.cafe24.com/auroranik-landing/assets/images/logo.png">
+  <link rel="apple-touch-icon" href="https://sorok1234.cafe24.com/auroranik-landing/assets/images/logo.png">
+
+  <!-- OPEN GRAPH & SHARE META TAGS -->
+  <meta property="og:title" content="오로라닉 관리자 대시보드">
+  <meta property="og:image" content="https://sorok1234.cafe24.com/auroranik-landing/assets/images/main_01.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .admin-body-bg {
+      background-color: #0b1310;
+      color: #f3f4f6;
+      min-height: 100vh;
+    }
+
+    .admin-header {
+      background: rgba(18, 30, 25, 0.95);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .admin-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .admin-badge {
+      background: #059669;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    .admin-container {
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 992px) {
+      .admin-grid { grid-template-columns: 1fr; }
+    }
+
+    .admin-sidebar {
+      background: #121e19;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 16px;
+      padding: 1.25rem;
+    }
+
+    .admin-menu-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      color: #9ca3af;
+      font-weight: 600;
+      border-radius: 10px;
+      margin-bottom: 0.4rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .admin-menu-link.active, .admin-menu-link:hover {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .admin-card-stat {
+      background: #121e19;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #10b981;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .admin-table th, .admin-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #1f2937;
+      font-size: 0.92rem;
+    }
+
+    .admin-table th {
+      background: #1a2b24;
+      color: #f3f4f6;
+      font-weight: 700;
+    }
+
+    .admin-table td { color: #d1d5db; }
+
+    .thumb-preview {
+      width: 80px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #000;
+    }
+
+    .admin-login-box {
+      max-width: 420px;
+      margin: 7rem auto;
+      background: #121e19;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+  </style>
+</head>
+<body class="admin-body-bg">
+
+  <!-- ADMIN LOGIN SCREEN -->
+  <div id="adminLoginScreen">
+    <div class="admin-login-box text-center">
+      <div style="margin-bottom: 1rem;">
+        <img src="https://sorok1234.cafe24.com/auroranik-landing/assets/images/logo.png" 
+             onerror="this.src='assets/images/logo.png'" 
+             alt="오로라닉 로고" 
+             style="height: 54px; margin: 0 auto;">
+      </div>
+      <h2>AURORANIK ADMIN</h2>
+      <p style="color: #9ca3af; font-size: 0.9rem; margin-bottom: 2rem;">오로라닉 콘텐츠 & 고객 상담 관리자 로그인</p>
+
+      <form id="adminDashboardLoginForm">
+        <div class="form-group" style="text-align: left;">
+          <label for="adminDashboardPass">관리자 암호 *</label>
+          <input type="password" id="adminDashboardPass" required placeholder="관리자 암호를 입력하세요">
+          <p style="font-size: 0.78rem; color: #6b7280; margin-top: 0.3rem;">* 기본 접속 암호: <strong>auroranik</strong> 또는 <strong>1234</strong></p>
+        </div>
+
+        <button type="submit" class="btn btn-emerald btn-full btn-lg" style="margin-top: 1rem;">
+          <i class="fa-solid fa-key"></i> 대시보드 로그인
+        </button>
+
+        <div style="margin-top: 1.5rem;">
+          <a href="index.html" target="_blank" rel="noopener noreferrer" style="color: #9ca3af; font-size: 0.85rem; text-decoration: underline;">
+            <i class="fa-solid fa-arrow-left"></i> 메인 웹사이트 새 창으로 보기
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN ADMIN DASHBOARD -->
+  <div id="adminDashboardApp" class="hidden">
+    <!-- Admin Header -->
+    <header class="admin-header">
+      <div class="admin-brand">
+        <img src="https://sorok1234.cafe24.com/auroranik-landing/assets/images/logo.png" 
+             onerror="this.src='assets/images/logo.png'" 
+             alt="오로라닉" 
+             style="height: 34px;">
+        <span style="font-weight: 800; font-size: 1.1rem; color: #fff;">오로라닉 통합 관리자 대시보드</span>
+        <span class="admin-badge">ADMIN PAGE</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> 메인 사이트 새 창으로 보기
+        </a>
+        <button id="adminLogoutBtn" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">
+          <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+        </button>
+      </div>
+    </header>
+
+    <div class="admin-container">
+      <div class="admin-grid">
+        
+        <!-- SIDEBAR MENU -->
+        <aside class="admin-sidebar">
+          <div class="admin-menu-link active" data-tab="tab-overview">
+            <i class="fa-solid fa-chart-pie"></i> <span>대시보드 개요</span>
+          </div>
+          <div class="admin-menu-link" data-tab="tab-inquiries">
+            <i class="fa-solid fa-comments text-amber"></i> <span>고객 상담 문의 내역</span>
+            <span class="admin-badge" id="sidebarInquiryBadge" style="background:#f59e0b; color:#fff; margin-left:auto;">0</span>
+          </div>
+          <div class="admin-menu-link" data-tab="tab-add-item">
+            <i class="fa-solid fa-cloud-arrow-up"></i> <span>새 콘텐츠 등록</span>
+          </div>
+          <div class="admin-menu-link" data-tab="tab-manage-items">
+            <i class="fa-solid fa-photo-film"></i> <span>포트폴리오 목록 관리</span>
+          </div>
+          <div class="admin-menu-link" data-tab="tab-manage-cats">
+            <i class="fa-solid fa-tags"></i> <span>카테고리 관리</span>
+          </div>
+        </aside>
+
+        <!-- DASHBOARD CONTENT PANES -->
+        <main class="admin-main-content">
+          
+          <!-- TAB 1: OVERVIEW -->
+          <div class="admin-tab-pane active" id="tab-overview">
+            <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">콘텐츠 & 고객 상담 통합 현황</h3>
+            <div class="grid grid-4" style="margin-bottom: 2rem;">
+              <div class="admin-card-stat">
+                <div>
+                  <p style="color: #9ca3af; font-size: 0.85rem;">전체 포트폴리오 수</p>
+                  <span class="stat-num" id="statTotalItems">0</span>
+                </div>
+                <i class="fa-solid fa-grip text-emerald" style="font-size: 1.8rem;"></i>
+              </div>
+
+              <div class="admin-card-stat">
+                <div>
+                  <p style="color: #9ca3af; font-size: 0.85rem;">고객 상담 문의 수</p>
+                  <span class="stat-num" id="statInquiryItems" style="color: #f59e0b;">0</span>
+                </div>
+                <i class="fa-solid fa-comments text-amber" style="font-size: 1.8rem;"></i>
+              </div>
+
+              <div class="admin-card-stat">
+                <div>
+                  <p style="color: #9ca3af; font-size: 0.85rem;">이미지 콘텐츠 수</p>
+                  <span class="stat-num" id="statImageItems" style="color: #3b82f6;">0</span>
+                </div>
+                <i class="fa-solid fa-image text-blue" style="font-size: 1.8rem;"></i>
+              </div>
+
+              <div class="admin-card-stat">
+                <div>
+                  <p style="color: #9ca3af; font-size: 0.85rem;">릴스 / 동영상 수</p>
+                  <span class="stat-num" id="statVideoItems" style="color: #8b5cf6;">0</span>
+                </div>
+                <i class="fa-solid fa-film text-purple" style="font-size: 1.8rem;"></i>
+              </div>
+            </div>
+
+            <div class="glass-card" style="padding: 1.5rem; background: #121e19;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h4 style="margin: 0;"><i class="fa-solid fa-circle-info text-emerald"></i> 실시간 영구 보존 관리 시스템 안내</h4>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button id="copyJsonDataBtn" class="btn btn-emerald btn-sm">
+                    <i class="fa-solid fa-copy"></i> 전체 데이터 JSON 복사
+                  </button>
+                  <button id="resetSampleDataBtn" class="btn btn-outline btn-sm" style="color: #9ca3af; border-color: rgba(255,255,255,0.2);">
+                    <i class="fa-solid fa-rotate-left"></i> 샘플 복원
+                  </button>
+                </div>
+              </div>
+              <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.7;">
+                • <strong>어느 기기/누가 접속해도 보이는 영구 보존</strong>: 파일 등록 시 **경량화 인코딩(800px 스마트 압축)**이 적용되어 용량 소실이나 새로고침 시 유실 없이 영구 유지됩니다.<br>
+                • <strong>Cafe24 서버 경로 지원</strong>: <code>https://sorok1234.cafe24.com/auroranik-landing/assets/images/</code> 절대 경로로 저장하여 어느 브라우저에서든 100% 노출됩니다.
+              </p>
+            </div>
+          </div>
+
+          <!-- TAB 2: CLIENT INQUIRIES LIST -->
+          <div class="admin-tab-pane hidden" id="tab-inquiries">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="margin-bottom: 0;"><i class="fa-solid fa-comments text-amber"></i> 고객 1:1 상담 신청 문의 내역</h3>
+              <button id="clearAllInquiriesBtn" class="btn btn-outline btn-sm" style="color: #ef4444; border-color: rgba(239,68,68,0.4);">
+                <i class="fa-solid fa-trash-can"></i> 전체 문의 내역 비우기
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th style="width: 140px;">접수 일시</th>
+                    <th style="width: 150px;">성함 / 업체명</th>
+                    <th style="width: 170px;">연락처 / 이메일</th>
+                    <th style="width: 140px;">업종 / 희망패키지</th>
+                    <th>문의 세부 내용</th>
+                    <th style="width: 80px;">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="adminInquiriesTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 3: ADD NEW ITEM -->
+          <div class="admin-tab-pane hidden" id="tab-add-item">
+            <div class="glass-card" style="padding: 2rem; background: #121e19;">
+              <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-plus-circle text-emerald"></i> 신규 이미지 및 릴스 영상 콘텐츠 등록</h3>
+
+              <form id="adminAddNewForm">
+                <div class="grid grid-2">
+                  <div class="form-group">
+                    <label for="adminMediaType">미디어 미디어 유형 선택 *</label>
+                    <select id="adminMediaType" required>
+                      <option value="image">📷 이미지 콘텐츠 (JPG, PNG, WebP)</option>
+                      <option value="video">🎥 동영상 / 원페이지 릴스 / 숏폼 (MP4, WebM)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="adminCatSelect">카테고리 선택 *</label>
+                    <select id="adminCatSelect" required>
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="adminTitle">프로젝트 제목 *</label>
+                  <input type="text" id="adminTitle" required placeholder="예: 시그니처 뷰티 브랜드 15초 원페이지 릴스">
+                </div>
+
+                <div class="form-group">
+                  <label for="adminSubtitle">부제목 / 마케팅 설명</label>
+                  <input type="text" id="adminSubtitle" placeholder="예: 20대 여성 타깃 감성 숏폼 & 피드 연출">
+                </div>
+
+                <div class="form-group" style="background: rgba(16, 185, 129, 0.08); padding: 1.25rem; border-radius: 12px; border: 1px dashed #10b981;">
+                  <label for="adminMediaFileInput" style="color: #10b981; font-weight: 700;">
+                    <i class="fa-solid fa-file-arrow-up"></i> 이미지 또는 동영상 파일 업로드 (컴퓨터 파일 선택)
+                  </label>
+                  <input type="file" id="adminMediaFileInput" accept="image/*,video/*" style="margin-top: 0.5rem;">
+                </div>
+
+                <div class="form-group">
+                  <label for="adminMediaUrl">또는 이미지 / 동영상 URL 직접 입력 (https://sorok1234.cafe24.com/auroranik-landing/assets/images/...)</label>
+                  <input type="text" id="adminMediaUrl" placeholder="예: https://sorok1234.cafe24.com/auroranik-landing/assets/images/sample.jpg">
+                </div>
+
+                <div class="form-group">
+                  <label for="adminLinkUrl"><i class="fa-solid fa-globe text-emerald"></i> 브랜드 홈페이지 / 웹사이트 관련 링크 URL (선택)</label>
+                  <input type="text" id="adminLinkUrl" placeholder="예: site-jhr63u.opadog.site 또는 https://site-jhr63u.opadog.site">
+                </div>
+
+                <div class="form-group">
+                  <label for="adminBadge">태그 배지 (선택)</label>
+                  <input type="text" id="adminBadge" placeholder="예: BEAUTY / REELS">
+                </div>
+
+                <button type="submit" class="btn btn-emerald btn-lg btn-full" style="margin-top: 1rem;">
+                  <i class="fa-solid fa-cloud-arrow-up"></i> 콘텐츠 등록 완료하기
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- TAB 4: MANAGE ITEMS -->
+          <div class="admin-tab-pane hidden" id="tab-manage-items">
+            <h3 style="margin-bottom: 1rem;">포트폴리오 미디어 전체 목록 관리 (기존 파일 + 신규 업로드 파일)</h3>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>이미지 / 미디어</th>
+                    <th>제목 / 부제목</th>
+                    <th>유형</th>
+                    <th>홈페이지 링크</th>
+                    <th>관리 (수정 / 삭제)</th>
+                  </tr>
+                </thead>
+                <tbody id="adminItemsTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TAB 5: MANAGE CATEGORIES -->
+          <div class="admin-tab-pane hidden" id="tab-manage-cats">
+            <div class="glass-card" style="padding: 2rem; background: #121e19;">
+              <h3 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-tags text-purple"></i> 카테고리 관리</h3>
+              
+              <div class="add-cat-input-group" style="margin-bottom: 2rem;">
+                <input type="text" id="adminNewCatInput" placeholder="새 카테고리 이름 입력 (예: 카페/디저트, 패션, IT/테크)">
+                <button class="btn btn-emerald" id="adminAddCatBtn">
+                  <i class="fa-solid fa-plus"></i> 카테고리 추가
+                </button>
+              </div>
+
+              <h4>등록된 카테고리 목록</h4>
+              <div id="adminCategoryChipsList" class="pm-category-chips" style="margin-top: 1rem;">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN EDIT CONTENT MODAL -->
+  <div class="modal-backdrop" id="adminEditModal">
+    <div class="modal-box glass-card" style="max-width: 650px; background: #121e19; border: 1px solid rgba(16,185,129,0.3);">
+      <button class="modal-close" id="closeAdminEditBtn" aria-label="닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-pen-to-square text-emerald"></i> 포트폴리오 콘텐츠 정보 및 링크 수정</h3>
+        <p>선택하신 포트폴리오의 이미지, 동영상 및 관련 홈페이지 링크를 수정합니다.</p>
+      </div>
+
+      <form id="adminEditForm">
+        <input type="hidden" id="editItemId">
+
+        <div class="grid grid-2">
+          <div class="form-group">
+            <label for="editMediaType">미디어 유형 *</label>
+            <select id="editMediaType" required>
+              <option value="image">📷 이미지 (Image)</option>
+              <option value="video">🎥 동영상 / 릴스 (Video)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editCategorySelect">카테고리 *</label>
+            <select id="editCategorySelect" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editTitle">프로젝트 제목 *</label>
+          <input type="text" id="editTitle" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editSubtitle">부제목 / 설명</label>
+          <input type="text" id="editSubtitle">
+        </div>
+
+        <div class="form-group" style="background: rgba(16, 185, 129, 0.08); padding: 1rem; border-radius: 10px; border: 1px dashed #10b981;">
+          <label for="editMediaFileInput" style="color: #10b981; font-weight: 700;">
+            <i class="fa-solid fa-file-arrow-up"></i> 새 미디어 파일 교체 업로드
+          </label>
+          <input type="file" id="editMediaFileInput" accept="image/*,video/*" style="margin-top: 0.4rem;">
+          <input type="text" id="editMediaUrl" placeholder="또는 미디어 URL / 경로 입력" style="margin-top: 0.4rem;">
+        </div>
+
+        <div class="form-group">
+          <label for="editLinkUrl"><i class="fa-solid fa-globe text-emerald"></i> 브랜드 홈페이지 / 웹사이트 링크 URL</label>
+          <input type="text" id="editLinkUrl" placeholder="예: https://site-jhr63u.opadog.site">
+        </div>
+
+        <div class="form-group">
+          <label for="editBadge">태그 배지</label>
+          <input type="text" id="editBadge">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="submit" class="btn btn-emerald btn-lg" style="flex-grow: 1;">
+            <i class="fa-solid fa-floppy-disk"></i> 수정사항 저장
+          </button>
+          <button type="button" class="btn btn-outline btn-lg" id="cancelAdminEditBtn">
+            취소
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- UPLOAD / EDIT COMPLETION CONFIRMATION MODAL -->
+  <div class="modal-backdrop" id="uploadCompleteModal" style="z-index: 2500;">
+    <div class="modal-box glass-card text-center" style="max-width: 520px; background: #121e19; border: 2px solid #10b981;">
+      <div style="font-size: 3.5rem; color: #10b981; margin-bottom: 0.75rem;">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 style="font-size: 1.6rem; color: #fff; margin-bottom: 0.5rem;" id="completeModalHeading">
+        콘텐츠 업로드 / 수정 완료!
+      </h3>
+      <p style="color: #9ca3af; font-size: 0.95rem; margin-bottom: 1.5rem;">
+        요청하신 콘텐츠가 영구 보존되어 메인 홈페이지(index.html)에 실시간 반영되었습니다.
+      </p>
+
+      <div id="completePreviewCard" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 14px; padding: 1.25rem; margin-bottom: 1.75rem; text-align: left; display: flex; gap: 1rem; align-items: center;">
+        <img id="completeThumbImg" src="https://sorok1234.cafe24.com/auroranik-landing/assets/images/hero_workspace.jpg" alt="미리보기" style="width: 90px; height: 70px; object-fit: cover; border-radius: 8px;">
+        <div style="flex-grow: 1; overflow: hidden;">
+          <span id="completeTypeBadge" style="background: #10b981; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 4px;">IMAGE</span>
+          <h4 id="completeTitleText" style="font-size: 1.05rem; color: #fff; margin: 0.3rem 0 0.2rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">프로젝트 제목</h4>
+          <p id="completeCategoryText" style="font-size: 0.82rem; color: #10b981; margin: 0;">카테고리</p>
+          <p id="completeLinkText" style="font-size: 0.78rem; color: #9ca3af; margin-top: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></p>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <a href="index.html" target="_blank" rel="noopener noreferrer" class="btn btn-emerald btn-lg btn-full">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> 메인 홈페이지(index.html) 새 창에서 업로드 결과 확인
+        </a>
+        <button id="confirmViewListBtn" class="btn btn-outline btn-lg btn-full" style="color: #fff; border-color: rgba(255,255,255,0.3);">
+          <i class="fa-solid fa-list-check"></i> 등록 목록 관리로 이동
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="portfolio-data.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const adminLoginScreen = document.getElementById('adminLoginScreen');
+      const adminDashboardApp = document.getElementById('adminDashboardApp');
+      const adminDashboardLoginForm = document.getElementById('adminDashboardLoginForm');
+      const adminDashboardPass = document.getElementById('adminDashboardPass');
+      const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+
+      let isLoggedIn = sessionStorage.getItem('auroranik_admin_dashboard_logged_in') === 'true';
+
+      function checkAuthState() {
+        if (isLoggedIn) {
+          adminLoginScreen.classList.add('hidden');
+          adminDashboardApp.classList.remove('hidden');
+          refreshDashboardData();
+        } else {
+          adminLoginScreen.classList.remove('hidden');
+          adminDashboardApp.classList.add('hidden');
+        }
+      }
+
+      checkAuthState();
+
+      if (adminDashboardLoginForm) {
+        adminDashboardLoginForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const pass = adminDashboardPass.value.trim().toLowerCase();
+          if (pass === 'auroranik' || pass === '1234' || pass === 'admin') {
+            isLoggedIn = true;
+            sessionStorage.setItem('auroranik_admin_dashboard_logged_in', 'true');
+            sessionStorage.setItem('auroranik_admin_logged_in', 'true');
+            checkAuthState();
+            alert('🔒 관리자 대시보드 로그인 성공!');
+          } else {
+            alert('❌ 관리자 암호가 일치하지 않습니다. (기본 암호: auroranik 또는 1234)');
+          }
+        });
+      }
+
+      if (adminLogoutBtn) {
+        adminLogoutBtn.addEventListener('click', () => {
+          isLoggedIn = false;
+          sessionStorage.removeItem('auroranik_admin_dashboard_logged_in');
+          sessionStorage.removeItem('auroranik_admin_logged_in');
+          checkAuthState();
+        });
+      }
+
+      const sidebarLinks = document.querySelectorAll('.admin-menu-link');
+      const tabPanes = document.querySelectorAll('.admin-tab-pane');
+
+      function switchTab(targetTabId) {
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        tabPanes.forEach(p => p.classList.add('hidden'));
+
+        const targetLink = document.querySelector(`.admin-menu-link[data-tab="${targetTabId}"]`);
+        if (targetLink) targetLink.classList.add('active');
+
+        const activePane = document.getElementById(targetTabId);
+        if (activePane) activePane.classList.remove('hidden');
+      }
+
+      sidebarLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          const targetTab = link.getAttribute('data-tab');
+          switchTab(targetTab);
+        });
+      });
+
+      // ULTRA-LIGHT CANVAS COMPRESSION (MAX 800PX, 0.65 QUALITY JPEG ~ 25KB PER IMAGE)
+      function processImageFileToBase64(file, maxDimension = 800) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+              let width = img.width;
+              let height = img.height;
+
+              if (width > maxDimension || height > maxDimension) {
+                if (width > height) {
+                  height = Math.round((height * maxDimension) / width);
+                  width = maxDimension;
+                } else {
+                  width = Math.round((width * maxDimension) / height);
+                  height = maxDimension;
+                }
+              }
+
+              const canvas = document.createElement('canvas');
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+
+              const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+              resolve(compressedBase64);
+            };
+            img.onerror = () => resolve(e.target.result);
+            img.src = e.target.result;
+          };
+          reader.onerror = (err) => reject(err);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function readRawFileToBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = (err) => reject(err);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function formatWebsiteUrl(urlStr) {
+        if (!urlStr) return '';
+        let trimmed = urlStr.trim();
+        if (!trimmed) return '';
+        if (!/^https?:\/\//i.test(trimmed)) {
+          return 'https://' + trimmed;
+        }
+        return trimmed;
+      }
+
+      const uploadCompleteModal = document.getElementById('uploadCompleteModal');
+      const confirmViewListBtn = document.getElementById('confirmViewListBtn');
+
+      function showUploadCompletionNotice(item, actionType = '등록') {
+        if (!uploadCompleteModal) return;
+
+        const heading = document.getElementById('completeModalHeading');
+        const thumbImg = document.getElementById('completeThumbImg');
+        const typeBadge = document.getElementById('completeTypeBadge');
+        const titleText = document.getElementById('completeTitleText');
+        const categoryText = document.getElementById('completeCategoryText');
+        const linkText = document.getElementById('completeLinkText');
+
+        if (heading) heading.textContent = `포트폴리오 콘텐츠 ${actionType} 완료!`;
+        if (thumbImg) thumbImg.src = item.image || item.mediaUrl;
+        if (typeBadge) {
+          typeBadge.textContent = item.mediaType === 'video' ? '🎥 VIDEO 릴스' : '📷 IMAGE';
+          typeBadge.style.background = item.mediaType === 'video' ? '#8b5cf6' : '#10b981';
+        }
+        if (titleText) titleText.textContent = item.title;
+        if (categoryText) {
+          const cats = getCategoriesData();
+          const catObj = cats.find(c => c.id === item.categoryId);
+          categoryText.textContent = `카테고리: ${catObj ? catObj.name : '기타'}`;
+        }
+        if (linkText) {
+          linkText.textContent = item.linkUrl ? `🌐 연결 링크: ${item.linkUrl}` : '🌐 연결 링크: 없음';
+        }
+
+        uploadCompleteModal.classList.add('active');
+      }
+
+      if (confirmViewListBtn) {
+        confirmViewListBtn.addEventListener('click', () => {
+          uploadCompleteModal.classList.remove('active');
+          switchTab('tab-manage-items');
+        });
+      }
+
+      if (uploadCompleteModal) {
+        uploadCompleteModal.addEventListener('click', (e) => {
+          if (e.target === uploadCompleteModal) {
+            uploadCompleteModal.classList.remove('active');
+          }
+        });
+      }
+
+      const resetSampleDataBtn = document.getElementById('resetSampleDataBtn');
+      if (resetSampleDataBtn) {
+        resetSampleDataBtn.addEventListener('click', () => {
+          if (confirm('기본 포트폴리오 6종 샘플 데이터를 초기 상태로 복원하시겠습니까?')) {
+            resetPortfolioData();
+            refreshDashboardData();
+            alert('기본 샘플 데이터가 성공적으로 복원되었습니다.');
+          }
+        });
+      }
+
+      const copyJsonDataBtn = document.getElementById('copyJsonDataBtn');
+      if (copyJsonDataBtn) {
+        copyJsonDataBtn.addEventListener('click', () => {
+          const data = getPortfolioData();
+          const jsonStr = JSON.stringify(data, null, 2);
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(jsonStr).then(() => {
+              alert('📋 현재 포트폴리오 데이터 JSON이 클립보드에 복사되었습니다!');
+            });
+          }
+        });
+      }
+
+      function refreshDashboardData() {
+        const items = getPortfolioData();
+        const categories = getCategoriesData();
+        const inquiries = getInquiriesData();
+
+        const statTotalItems = document.getElementById('statTotalItems');
+        const statImageItems = document.getElementById('statImageItems');
+        const statVideoItems = document.getElementById('statVideoItems');
+        const statInquiryItems = document.getElementById('statInquiryItems');
+        const sidebarInquiryBadge = document.getElementById('sidebarInquiryBadge');
+
+        if (statTotalItems) statTotalItems.textContent = items.length;
+        if (statImageItems) statImageItems.textContent = items.filter(i => i.mediaType !== 'video').length;
+        if (statVideoItems) statVideoItems.textContent = items.filter(i => i.mediaType === 'video').length;
+        if (statInquiryItems) statInquiryItems.textContent = inquiries.length;
+        if (sidebarInquiryBadge) sidebarInquiryBadge.textContent = inquiries.length;
+
+        // RENDER INQUIRIES TABLE
+        const inquiriesTableBody = document.getElementById('adminInquiriesTableBody');
+        if (inquiriesTableBody) {
+          inquiriesTableBody.innerHTML = '';
+          if (inquiries.length === 0) {
+            inquiriesTableBody.innerHTML = `
+              <tr>
+                <td colspan="6" style="text-align:center; padding:3rem; color:#9ca3af;">
+                  접수된 고객 상담 문의 내역이 없습니다.
+                </td>
+              </tr>
+            `;
+          } else {
+            inquiries.forEach(inq => {
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td style="font-size:0.82rem; color:#9ca3af;">${inq.date}</td>
+                <td><strong>${inq.name}</strong></td>
+                <td style="font-size:0.85rem; color:#10b981;">${inq.contact}</td>
+                <td>
+                  <span class="badge" style="background:#0d9488; color:#fff; font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px;">${inq.industry}</span><br>
+                  <span style="font-size:0.78rem; color:#a78bfa;">${inq.package}</span>
+                </td>
+                <td style="font-size:0.88rem; color:#e5e7eb; line-height:1.5;">${inq.message}</td>
+                <td>
+                  <button class="btn btn-outline btn-sm delete-inquiry-btn" data-id="${inq.id}" style="color:#ef4444; border-color:rgba(239,68,68,0.4);">
+                    <i class="fa-solid fa-trash"></i> 삭제
+                  </button>
+                </td>
+              `;
+              inquiriesTableBody.appendChild(tr);
+            });
+
+            const delInqBtns = inquiriesTableBody.querySelectorAll('.delete-inquiry-btn');
+            delInqBtns.forEach(btn => {
+              btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                if (confirm('해당 상담 문의 항목을 삭제하시겠습니까?')) {
+                  const newInquiries = getInquiriesData().filter(i => i.id !== id);
+                  saveInquiriesData(newInquiries);
+                  refreshDashboardData();
+                }
+              });
+            });
+          }
+        }
+
+        const adminCatSelect = document.getElementById('adminCatSelect');
+        if (adminCatSelect) {
+          adminCatSelect.innerHTML = '';
+          categories.filter(c => c.id !== 'all').forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            adminCatSelect.appendChild(opt);
+          });
+        }
+
+        const editCategorySelect = document.getElementById('editCategorySelect');
+        if (editCategorySelect) {
+          editCategorySelect.innerHTML = '';
+          categories.filter(c => c.id !== 'all').forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            editCategorySelect.appendChild(opt);
+          });
+        }
+
+        // RENDER ALL ITEMS IN ADMIN TABLE (DEFAULTS + NEWLY UPLOADED)
+        const tableBody = document.getElementById('adminItemsTableBody');
+        if (tableBody) {
+          tableBody.innerHTML = '';
+          items.forEach(item => {
+            const catObj = categories.find(c => c.id === item.categoryId);
+            const isVid = item.mediaType === 'video';
+            const displayThumb = item.image || item.mediaUrl;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>
+                <img src="${displayThumb}" class="thumb-preview" alt="${item.title}" onerror="this.src='https://sorok1234.cafe24.com/auroranik-landing/assets/images/hero_workspace.jpg'">
+              </td>
+              <td>
+                <strong>${item.title}</strong><br>
+                <span style="font-size: 0.8rem; color: #9ca3af;">${item.subtitle || ''}</span>
+              </td>
+              <td><span class="badge" style="background:${isVid ? '#8b5cf6' : '#10b981'}; color:#fff; padding:0.2rem 0.5rem; border-radius:4px; font-size:0.75rem;">${isVid ? '🎥 VIDEO' : '📷 IMAGE'}</span></td>
+              <td>
+                ${item.linkUrl ? 
+                  `<a href="${item.linkUrl}" target="_blank" style="color:#10b981; font-size:0.82rem; text-decoration:underline;"><i class="fa-solid fa-globe"></i> ${item.linkUrl.replace(/^https?:\/\//,'')}</a>` :
+                  `<span style="color:#6b7280; font-size:0.8rem;">미등록</span>`
+                }
+              </td>
+              <td>
+                <button class="btn btn-outline btn-sm edit-admin-item-btn" data-id="${item.id}" style="margin-right: 0.4rem; color: #10b981; border-color: rgba(16,185,129,0.4);">
+                  <i class="fa-solid fa-pen-to-square"></i> 수정
+                </button>
+                <button class="btn btn-outline btn-sm delete-admin-item-btn" data-id="${item.id}" style="color:#ef4444; border-color:rgba(239,68,68,0.4);">
+                  <i class="fa-solid fa-trash"></i> 삭제
+                </button>
+              </td>
+            `;
+            tableBody.appendChild(tr);
+          });
+
+          const editBtns = tableBody.querySelectorAll('.edit-admin-item-btn');
+          editBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              const id = btn.getAttribute('data-id');
+              openAdminEditModal(id);
+            });
+          });
+
+          const delBtns = tableBody.querySelectorAll('.delete-admin-item-btn');
+          delBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+              const id = btn.getAttribute('data-id');
+              if (confirm('해당 콘텐츠 항목을 삭제하시겠습니까?')) {
+                const newItems = getPortfolioData().filter(i => i.id !== id);
+                savePortfolioData(newItems);
+                refreshDashboardData();
+              }
+            });
+          });
+        }
+
+        const adminCategoryChipsList = document.getElementById('adminCategoryChipsList');
+        if (adminCategoryChipsList) {
+          adminCategoryChipsList.innerHTML = '';
+          categories.forEach(c => {
+            const chip = document.createElement('span');
+            chip.className = 'pm-cat-chip';
+            chip.innerHTML = `
+              ${c.name}
+              ${c.id !== 'all' ? `<button class="remove-cat-btn" data-id="${c.id}"><i class="fa-solid fa-xmark"></i></button>` : ''}
+            `;
+            adminCategoryChipsList.appendChild(chip);
+          });
+
+          const remBtns = adminCategoryChipsList.querySelectorAll('.remove-cat-btn');
+          remBtns.forEach(b => {
+            b.addEventListener('click', () => {
+              const id = b.getAttribute('data-id');
+              const newCats = getCategoriesData().filter(c => c.id !== id);
+              saveCategoriesData(newCats);
+              refreshDashboardData();
+            });
+          });
+        }
+      }
+
+      const clearAllInquiriesBtn = document.getElementById('clearAllInquiriesBtn');
+      if (clearAllInquiriesBtn) {
+        clearAllInquiriesBtn.addEventListener('click', () => {
+          if (confirm('모든 상담 문의 내역을 비우시겠습니까?')) {
+            saveInquiriesData([]);
+            refreshDashboardData();
+          }
+        });
+      }
+
+      // ADMIN EDIT MODAL LOGIC
+      const adminEditModal = document.getElementById('adminEditModal');
+      const closeAdminEditBtn = document.getElementById('closeAdminEditBtn');
+      const cancelAdminEditBtn = document.getElementById('cancelAdminEditBtn');
+      const adminEditForm = document.getElementById('adminEditForm');
+
+      function openAdminEditModal(itemId) {
+        const items = getPortfolioData();
+        const target = items.find(i => i.id === itemId);
+        if (!target || !adminEditModal) return;
+
+        document.getElementById('editItemId').value = target.id;
+        document.getElementById('editMediaType').value = target.mediaType || 'image';
+        document.getElementById('editCategorySelect').value = target.categoryId;
+        document.getElementById('editTitle').value = target.title || '';
+        document.getElementById('editSubtitle').value = target.subtitle || '';
+        document.getElementById('editMediaUrl').value = target.mediaUrl || target.image || '';
+        document.getElementById('editLinkUrl').value = target.linkUrl || '';
+        document.getElementById('editBadge').value = target.badge || '';
+
+        adminEditModal.classList.add('active');
+      }
+
+      if (closeAdminEditBtn) {
+        closeAdminEditBtn.addEventListener('click', () => adminEditModal.classList.remove('active'));
+      }
+      if (cancelAdminEditBtn) {
+        cancelAdminEditBtn.addEventListener('click', () => adminEditModal.classList.remove('active'));
+      }
+
+      if (adminEditForm) {
+        adminEditForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const id = document.getElementById('editItemId').value;
+          const items = getPortfolioData();
+          const target = items.find(i => i.id === id);
+
+          if (target) {
+            target.mediaType = document.getElementById('editMediaType').value;
+            target.categoryId = document.getElementById('editCategorySelect').value;
+            target.title = document.getElementById('editTitle').value.trim();
+            target.subtitle = document.getElementById('editSubtitle').value.trim();
+            target.linkUrl = formatWebsiteUrl(document.getElementById('editLinkUrl').value);
+            
+            const mediaFileInput = document.getElementById('editMediaFileInput');
+            if (mediaFileInput && mediaFileInput.files && mediaFileInput.files[0]) {
+              const file = mediaFileInput.files[0];
+              if (file.type.startsWith('image/')) {
+                const base64Str = await processImageFileToBase64(file);
+                target.mediaUrl = base64Str;
+                target.image = base64Str;
+              } else {
+                const base64Str = await readRawFileToBase64(file);
+                target.mediaUrl = base64Str;
+                target.image = base64Str;
+              }
+            } else {
+              const mediaUrlVal = document.getElementById('editMediaUrl').value.trim();
+              if (mediaUrlVal) {
+                target.mediaUrl = mediaUrlVal;
+                target.image = mediaUrlVal;
+              }
+            }
+
+            target.badge = document.getElementById('editBadge').value.trim() || (target.mediaType === 'video' ? 'REELS / SHORT-FORM' : 'PORTFOLIO');
+
+            savePortfolioData(items);
+            adminEditModal.classList.remove('active');
+            refreshDashboardData();
+            showUploadCompletionNotice(target, '수정');
+          }
+        });
+      }
+
+      // FORM ADD NEW ITEM HANDLER
+      const adminAddNewForm = document.getElementById('adminAddNewForm');
+      if (adminAddNewForm) {
+        adminAddNewForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const items = getPortfolioData();
+          const categories = getCategoriesData();
+          const newId = `item-${Date.now()}`;
+
+          const mediaType = document.getElementById('adminMediaType').value;
+          const catId = document.getElementById('adminCatSelect').value;
+          const catObj = categories.find(c => c.id === catId);
+
+          const title = document.getElementById('adminTitle').value.trim();
+          const subtitle = document.getElementById('adminSubtitle').value.trim();
+          let mediaUrl = document.getElementById('adminMediaUrl').value.trim();
+          const linkUrl = formatWebsiteUrl(document.getElementById('adminLinkUrl').value);
+          const badge = document.getElementById('adminBadge').value.trim() || (mediaType === 'video' ? 'REELS / SHORT-FORM' : 'PORTFOLIO');
+
+          const mediaFileInput = document.getElementById('adminMediaFileInput');
+          if (mediaFileInput && mediaFileInput.files && mediaFileInput.files[0]) {
+            const file = mediaFileInput.files[0];
+            if (file.type.startsWith('image/')) {
+              mediaUrl = await processImageFileToBase64(file);
+            } else {
+              mediaUrl = await readRawFileToBase64(file);
+            }
+          }
+
+          if (!mediaUrl) {
+            alert("미디어 파일 선택 또는 URL을 입력해 주세요.");
+            return;
+          }
+
+          const newItem = {
+            id: newId,
+            categoryId: catId,
+            categoryName: catObj ? catObj.name : '기타',
+            mediaType: mediaType,
+            badge: badge,
+            title: title,
+            subtitle: subtitle,
+            image: mediaUrl,
+            mediaUrl: mediaUrl,
+            linkUrl: linkUrl,
+            ratio: mediaType === 'video' ? '9:16 / 숏폼 릴스' : '4:5 / 16:9',
+            specs: [
+              {
+                icon: mediaType === 'video' ? 'fa-film text-purple' : 'fa-star text-emerald',
+                title: '주요 특징 및 범위',
+                items: [mediaType === 'video' ? '10~15초 고효율 원페이지 릴스 및 숏폼 영상 제작' : '맞춤 AI 이미지 제작 및 브랜드 디자인 기획']
+              }
+            ]
+          };
+
+          items.unshift(newItem);
+          savePortfolioData(items);
+          adminAddNewForm.reset();
+          refreshDashboardData();
+          showUploadCompletionNotice(newItem, '등록');
+        });
+      }
+
+      // ADD CATEGORY HANDLER
+      const adminAddCatBtn = document.getElementById('adminAddCatBtn');
+      const adminNewCatInput = document.getElementById('adminNewCatInput');
+      if (adminAddCatBtn && adminNewCatInput) {
+        adminAddCatBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const val = adminNewCatInput.value.trim();
+          if (!val) return;
+
+          const cats = getCategoriesData();
+          cats.push({ id: `cat-${Date.now()}`, name: val });
+          saveCategoriesData(cats);
+          adminNewCatInput.value = '';
+          refreshDashboardData();
+          alert(`[${val}] 카테고리가 등록되었습니다!`);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
