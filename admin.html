@@ -174,7 +174,6 @@
         <div class="form-group" style="text-align: left;">
           <label for="adminDashboardPass">관리자 암호 *</label>
           <input type="password" id="adminDashboardPass" required placeholder="관리자 암호를 입력하세요">
-          <p style="font-size: 0.78rem; color: #6b7280; margin-top: 0.3rem;">* 기본 접속 암호: <strong>auroranik</strong> 또는 <strong>1234</strong></p>
         </div>
 
         <button type="submit" class="btn btn-emerald btn-full btn-lg" style="margin-top: 1rem;">
@@ -289,8 +288,9 @@
                 </div>
               </div>
               <p style="color: #9ca3af; font-size: 0.95rem; line-height: 1.7;">
-                • <strong>어느 기기/누가 접속해도 보이는 영구 보존</strong>: 파일 등록 시 **경량화 인코딩(800px 스마트 압축)**이 적용되어 용량 소실이나 새로고침 시 유실 없이 영구 유지됩니다.<br>
-                • <strong>Cafe24 서버 경로 지원</strong>: <code>https://sorok1234.cafe24.com/auroranik-landing/assets/images/</code> 절대 경로로 저장하여 어느 브라우저에서든 100% 노출됩니다.
+                • <strong>실제 서버 저장 방식으로 전환됨</strong>: 이미지/영상을 업로드하면 브라우저가 아닌 <strong>cafe24 서버의 assets 폴더</strong>에 실제 파일로 저장됩니다.<br>
+                • <strong>누가 언제 어디서 접속해도 동일하게 노출</strong>: <code>https://sorok1234.cafe24.com/auroranik-landing/assets/images/</code> 절대 경로로 저장되어 PC/모바일, 관리자/일반 방문자 구분 없이 100% 동일하게 보입니다.<br>
+                • 데이터가 보이지 않는다면 <code>api</code> 폴더가 서버에 정상 업로드되었는지, PHP가 활성화되어 있는지 확인해주세요.
               </p>
             </div>
           </div>
@@ -546,11 +546,11 @@
 
       let isLoggedIn = sessionStorage.getItem('auroranik_admin_dashboard_logged_in') === 'true';
 
-      function checkAuthState() {
+      async function checkAuthState() {
         if (isLoggedIn) {
           adminLoginScreen.classList.add('hidden');
           adminDashboardApp.classList.remove('hidden');
-          refreshDashboardData();
+          await refreshDashboardData();
         } else {
           adminLoginScreen.classList.remove('hidden');
           adminDashboardApp.classList.add('hidden');
@@ -570,7 +570,7 @@
             checkAuthState();
             alert('🔒 관리자 대시보드 로그인 성공!');
           } else {
-            alert('❌ 관리자 암호가 일치하지 않습니다. (기본 암호: auroranik 또는 1234)');
+            alert('❌ 관리자 암호가 일치하지 않습니다.');
           }
         });
       }
@@ -605,50 +605,22 @@
         });
       });
 
-      // ULTRA-LIGHT CANVAS COMPRESSION (MAX 800PX, 0.65 QUALITY JPEG ~ 25KB PER IMAGE)
-      function processImageFileToBase64(file, maxDimension = 800) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = new Image();
-            img.onload = () => {
-              let width = img.width;
-              let height = img.height;
+      // 파일 업로드는 이제 portfolio-data.js의 uploadMediaFile()을 통해
+      // 실제 서버(cafe24) assets 폴더에 저장됩니다. (base64/localStorage 방식 폐지)
 
-              if (width > maxDimension || height > maxDimension) {
-                if (width > height) {
-                  height = Math.round((height * maxDimension) / width);
-                  width = maxDimension;
-                } else {
-                  width = Math.round((width * maxDimension) / height);
-                  height = maxDimension;
-                }
-              }
-
-              const canvas = document.createElement('canvas');
-              canvas.width = width;
-              canvas.height = height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0, width, height);
-
-              const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
-              resolve(compressedBase64);
-            };
-            img.onerror = () => resolve(e.target.result);
-            img.src = e.target.result;
-          };
-          reader.onerror = (err) => reject(err);
-          reader.readAsDataURL(file);
-        });
-      }
-
-      function readRawFileToBase64(file) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = (err) => reject(err);
-          reader.readAsDataURL(file);
-        });
+      // 업로드 중 버튼 비활성화 + 로딩 표시용 헬퍼
+      function setSubmitLoading(formEl, loading, loadingText = '업로드 중...') {
+        if (!formEl) return;
+        const btn = formEl.querySelector('button[type="submit"]');
+        if (!btn) return;
+        if (loading) {
+          btn.dataset.originalHtml = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${loadingText}`;
+        } else {
+          btn.disabled = false;
+          if (btn.dataset.originalHtml) btn.innerHTML = btn.dataset.originalHtml;
+        }
       }
 
       function formatWebsiteUrl(urlStr) {
@@ -664,7 +636,7 @@
       const uploadCompleteModal = document.getElementById('uploadCompleteModal');
       const confirmViewListBtn = document.getElementById('confirmViewListBtn');
 
-      function showUploadCompletionNotice(item, actionType = '등록') {
+      async function showUploadCompletionNotice(item, actionType = '등록') {
         if (!uploadCompleteModal) return;
 
         const heading = document.getElementById('completeModalHeading');
@@ -682,7 +654,7 @@
         }
         if (titleText) titleText.textContent = item.title;
         if (categoryText) {
-          const cats = getCategoriesData();
+          const cats = await getCategoriesData();
           const catObj = cats.find(c => c.id === item.categoryId);
           categoryText.textContent = `카테고리: ${catObj ? catObj.name : '기타'}`;
         }
@@ -710,10 +682,10 @@
 
       const resetSampleDataBtn = document.getElementById('resetSampleDataBtn');
       if (resetSampleDataBtn) {
-        resetSampleDataBtn.addEventListener('click', () => {
-          if (confirm('기본 포트폴리오 6종 샘플 데이터를 초기 상태로 복원하시겠습니까?')) {
-            resetPortfolioData();
-            refreshDashboardData();
+        resetSampleDataBtn.addEventListener('click', async () => {
+          if (confirm('기본 포트폴리오 6종 샘플 데이터를 초기 상태로 복원하시겠습니까?\n(서버에 저장된 현재 데이터가 모두 대체됩니다)')) {
+            await resetPortfolioData();
+            await refreshDashboardData();
             alert('기본 샘플 데이터가 성공적으로 복원되었습니다.');
           }
         });
@@ -721,8 +693,8 @@
 
       const copyJsonDataBtn = document.getElementById('copyJsonDataBtn');
       if (copyJsonDataBtn) {
-        copyJsonDataBtn.addEventListener('click', () => {
-          const data = getPortfolioData();
+        copyJsonDataBtn.addEventListener('click', async () => {
+          const data = await getPortfolioData();
           const jsonStr = JSON.stringify(data, null, 2);
           if (navigator.clipboard) {
             navigator.clipboard.writeText(jsonStr).then(() => {
@@ -732,10 +704,10 @@
         });
       }
 
-      function refreshDashboardData() {
-        const items = getPortfolioData();
-        const categories = getCategoriesData();
-        const inquiries = getInquiriesData();
+      async function refreshDashboardData() {
+        const items = await getPortfolioData();
+        const categories = await getCategoriesData();
+        const inquiries = await getInquiriesData();
 
         const statTotalItems = document.getElementById('statTotalItems');
         const statImageItems = document.getElementById('statImageItems');
@@ -784,11 +756,12 @@
 
             const delInqBtns = inquiriesTableBody.querySelectorAll('.delete-inquiry-btn');
             delInqBtns.forEach(btn => {
-              btn.addEventListener('click', () => {
+              btn.addEventListener('click', async () => {
                 const id = btn.getAttribute('data-id');
                 if (confirm('해당 상담 문의 항목을 삭제하시겠습니까?')) {
-                  const newInquiries = getInquiriesData().filter(i => i.id !== id);
-                  saveInquiriesData(newInquiries);
+                  const currentInquiries = await getInquiriesData();
+                  const newInquiries = currentInquiries.filter(i => i.id !== id);
+                  await saveInquiriesData(newInquiries);
                   refreshDashboardData();
                 }
               });
@@ -865,11 +838,12 @@
 
           const delBtns = tableBody.querySelectorAll('.delete-admin-item-btn');
           delBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
               const id = btn.getAttribute('data-id');
               if (confirm('해당 콘텐츠 항목을 삭제하시겠습니까?')) {
-                const newItems = getPortfolioData().filter(i => i.id !== id);
-                savePortfolioData(newItems);
+                const currentItems = await getPortfolioData();
+                const newItems = currentItems.filter(i => i.id !== id);
+                await savePortfolioData(newItems);
                 refreshDashboardData();
               }
             });
@@ -891,10 +865,11 @@
 
           const remBtns = adminCategoryChipsList.querySelectorAll('.remove-cat-btn');
           remBtns.forEach(b => {
-            b.addEventListener('click', () => {
+            b.addEventListener('click', async () => {
               const id = b.getAttribute('data-id');
-              const newCats = getCategoriesData().filter(c => c.id !== id);
-              saveCategoriesData(newCats);
+              const currentCats = await getCategoriesData();
+              const newCats = currentCats.filter(c => c.id !== id);
+              await saveCategoriesData(newCats);
               refreshDashboardData();
             });
           });
@@ -903,9 +878,9 @@
 
       const clearAllInquiriesBtn = document.getElementById('clearAllInquiriesBtn');
       if (clearAllInquiriesBtn) {
-        clearAllInquiriesBtn.addEventListener('click', () => {
+        clearAllInquiriesBtn.addEventListener('click', async () => {
           if (confirm('모든 상담 문의 내역을 비우시겠습니까?')) {
-            saveInquiriesData([]);
+            await saveInquiriesData([]);
             refreshDashboardData();
           }
         });
@@ -917,8 +892,8 @@
       const cancelAdminEditBtn = document.getElementById('cancelAdminEditBtn');
       const adminEditForm = document.getElementById('adminEditForm');
 
-      function openAdminEditModal(itemId) {
-        const items = getPortfolioData();
+      async function openAdminEditModal(itemId) {
+        const items = await getPortfolioData();
         const target = items.find(i => i.id === itemId);
         if (!target || !adminEditModal) return;
 
@@ -945,28 +920,26 @@
         adminEditForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           const id = document.getElementById('editItemId').value;
-          const items = getPortfolioData();
+          const items = await getPortfolioData();
           const target = items.find(i => i.id === id);
 
-          if (target) {
+          if (!target) return;
+
+          setSubmitLoading(adminEditForm, true, '서버에 저장 중...');
+          try {
             target.mediaType = document.getElementById('editMediaType').value;
             target.categoryId = document.getElementById('editCategorySelect').value;
             target.title = document.getElementById('editTitle').value.trim();
             target.subtitle = document.getElementById('editSubtitle').value.trim();
             target.linkUrl = formatWebsiteUrl(document.getElementById('editLinkUrl').value);
-            
+
             const mediaFileInput = document.getElementById('editMediaFileInput');
             if (mediaFileInput && mediaFileInput.files && mediaFileInput.files[0]) {
-              const file = mediaFileInput.files[0];
-              if (file.type.startsWith('image/')) {
-                const base64Str = await processImageFileToBase64(file);
-                target.mediaUrl = base64Str;
-                target.image = base64Str;
-              } else {
-                const base64Str = await readRawFileToBase64(file);
-                target.mediaUrl = base64Str;
-                target.image = base64Str;
-              }
+              // 실제 파일을 서버(cafe24) assets 폴더에 업로드 -> 모든 방문자에게 노출됨
+              const uploadResult = await uploadMediaFile(mediaFileInput.files[0]);
+              target.mediaUrl = uploadResult.url;
+              target.image = uploadResult.url;
+              target.mediaType = uploadResult.mediaType;
             } else {
               const mediaUrlVal = document.getElementById('editMediaUrl').value.trim();
               if (mediaUrlVal) {
@@ -977,10 +950,14 @@
 
             target.badge = document.getElementById('editBadge').value.trim() || (target.mediaType === 'video' ? 'REELS / SHORT-FORM' : 'PORTFOLIO');
 
-            savePortfolioData(items);
+            await savePortfolioData(items);
             adminEditModal.classList.remove('active');
-            refreshDashboardData();
+            await refreshDashboardData();
             showUploadCompletionNotice(target, '수정');
+          } catch (err) {
+            alert('⚠ 수정 중 오류가 발생했습니다: ' + (err.message || err));
+          } finally {
+            setSubmitLoading(adminEditForm, false);
           }
         });
       }
@@ -990,14 +967,9 @@
       if (adminAddNewForm) {
         adminAddNewForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const items = getPortfolioData();
-          const categories = getCategoriesData();
-          const newId = `item-${Date.now()}`;
 
-          const mediaType = document.getElementById('adminMediaType').value;
+          let mediaType = document.getElementById('adminMediaType').value;
           const catId = document.getElementById('adminCatSelect').value;
-          const catObj = categories.find(c => c.id === catId);
-
           const title = document.getElementById('adminTitle').value.trim();
           const subtitle = document.getElementById('adminSubtitle').value.trim();
           let mediaUrl = document.getElementById('adminMediaUrl').value.trim();
@@ -1005,46 +977,58 @@
           const badge = document.getElementById('adminBadge').value.trim() || (mediaType === 'video' ? 'REELS / SHORT-FORM' : 'PORTFOLIO');
 
           const mediaFileInput = document.getElementById('adminMediaFileInput');
-          if (mediaFileInput && mediaFileInput.files && mediaFileInput.files[0]) {
-            const file = mediaFileInput.files[0];
-            if (file.type.startsWith('image/')) {
-              mediaUrl = await processImageFileToBase64(file);
-            } else {
-              mediaUrl = await readRawFileToBase64(file);
-            }
-          }
+          const hasFile = mediaFileInput && mediaFileInput.files && mediaFileInput.files[0];
 
-          if (!mediaUrl) {
+          if (!hasFile && !mediaUrl) {
             alert("미디어 파일 선택 또는 URL을 입력해 주세요.");
             return;
           }
 
-          const newItem = {
-            id: newId,
-            categoryId: catId,
-            categoryName: catObj ? catObj.name : '기타',
-            mediaType: mediaType,
-            badge: badge,
-            title: title,
-            subtitle: subtitle,
-            image: mediaUrl,
-            mediaUrl: mediaUrl,
-            linkUrl: linkUrl,
-            ratio: mediaType === 'video' ? '9:16 / 숏폼 릴스' : '4:5 / 16:9',
-            specs: [
-              {
-                icon: mediaType === 'video' ? 'fa-film text-purple' : 'fa-star text-emerald',
-                title: '주요 특징 및 범위',
-                items: [mediaType === 'video' ? '10~15초 고효율 원페이지 릴스 및 숏폼 영상 제작' : '맞춤 AI 이미지 제작 및 브랜드 디자인 기획']
-              }
-            ]
-          };
+          setSubmitLoading(adminAddNewForm, true, '서버에 업로드 중...');
+          try {
+            if (hasFile) {
+              // 실제 파일을 서버(cafe24) assets 폴더에 업로드 -> 모든 방문자에게 노출됨
+              const uploadResult = await uploadMediaFile(mediaFileInput.files[0]);
+              mediaUrl = uploadResult.url;
+              mediaType = uploadResult.mediaType;
+            }
 
-          items.unshift(newItem);
-          savePortfolioData(items);
-          adminAddNewForm.reset();
-          refreshDashboardData();
-          showUploadCompletionNotice(newItem, '등록');
+            const items = await getPortfolioData();
+            const categories = await getCategoriesData();
+            const catObj = categories.find(c => c.id === catId);
+            const newId = `item-${Date.now()}`;
+
+            const newItem = {
+              id: newId,
+              categoryId: catId,
+              categoryName: catObj ? catObj.name : '기타',
+              mediaType: mediaType,
+              badge: badge,
+              title: title,
+              subtitle: subtitle,
+              image: mediaUrl,
+              mediaUrl: mediaUrl,
+              linkUrl: linkUrl,
+              ratio: mediaType === 'video' ? '9:16 / 숏폼 릴스' : '4:5 / 16:9',
+              specs: [
+                {
+                  icon: mediaType === 'video' ? 'fa-film text-purple' : 'fa-star text-emerald',
+                  title: '주요 특징 및 범위',
+                  items: [mediaType === 'video' ? '10~15초 고효율 원페이지 릴스 및 숏폼 영상 제작' : '맞춤 AI 이미지 제작 및 브랜드 디자인 기획']
+                }
+              ]
+            };
+
+            items.unshift(newItem);
+            await savePortfolioData(items);
+            adminAddNewForm.reset();
+            await refreshDashboardData();
+            showUploadCompletionNotice(newItem, '등록');
+          } catch (err) {
+            alert('⚠ 등록 중 오류가 발생했습니다: ' + (err.message || err));
+          } finally {
+            setSubmitLoading(adminAddNewForm, false);
+          }
         });
       }
 
@@ -1052,16 +1036,16 @@
       const adminAddCatBtn = document.getElementById('adminAddCatBtn');
       const adminNewCatInput = document.getElementById('adminNewCatInput');
       if (adminAddCatBtn && adminNewCatInput) {
-        adminAddCatBtn.addEventListener('click', (e) => {
+        adminAddCatBtn.addEventListener('click', async (e) => {
           e.preventDefault();
           const val = adminNewCatInput.value.trim();
           if (!val) return;
 
-          const cats = getCategoriesData();
+          const cats = await getCategoriesData();
           cats.push({ id: `cat-${Date.now()}`, name: val });
-          saveCategoriesData(cats);
+          await saveCategoriesData(cats);
           adminNewCatInput.value = '';
-          refreshDashboardData();
+          await refreshDashboardData();
           alert(`[${val}] 카테고리가 등록되었습니다!`);
         });
       }

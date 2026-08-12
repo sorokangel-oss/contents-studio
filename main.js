@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         window.open('admin.html', '_blank');
       } else {
-        alert('❌ 올바르지 않은 관리자 암호입니다. (기본 암호: auroranik 또는 1234)');
+        alert('❌ 올바르지 않은 관리자 암호입니다.');
       }
     });
   }
@@ -125,9 +125,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const portfolioGalleryGrid = document.getElementById('portfolioGalleryGrid');
   let activeFilterId = 'all';
 
-  function renderCategoryMenu() {
+  async function renderCategoryMenu() {
     if (!portfolioCategoryMenu) return;
-    const categories = getCategoriesData();
+    const categories = await getCategoriesData();
     portfolioCategoryMenu.innerHTML = '';
 
     categories.forEach(cat => {
@@ -146,10 +146,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function renderGalleryGrid() {
+  async function renderGalleryGrid() {
     if (!portfolioGalleryGrid) return;
-    const items = getPortfolioData();
-    const categories = getCategoriesData();
+    portfolioGalleryGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: var(--text-muted);">
+        <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; margin-bottom: 1rem; color: var(--emerald-light);"></i>
+        <p>포트폴리오를 불러오는 중입니다...</p>
+      </div>
+    `;
+    const items = await getPortfolioData();
+    const categories = await getCategoriesData();
 
     const filteredItems = activeFilterId === 'all' 
       ? items 
@@ -243,13 +249,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCategoryMenu();
   renderGalleryGrid();
 
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'auroranik_portfolio_data_v4' || e.key === 'auroranik_categories_v4') {
-      renderCategoryMenu();
-      renderGalleryGrid();
-    }
-  });
-
   // --------------------------------------------------------------------------
   // 4. Portfolio Detail View Modal
   // --------------------------------------------------------------------------
@@ -300,8 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function openPortfolioDetailModal(itemId) {
-    const items = getPortfolioData();
+  async function openPortfolioDetailModal(itemId) {
+    const items = await getPortfolioData();
     const item = items.find(i => i.id === itemId);
     if (!item || !detailModalBody) return;
 
@@ -478,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const clientName = document.getElementById('clientName').value.trim();
       const clientContact = document.getElementById('clientContact').value.trim();
@@ -489,8 +488,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const now = new Date();
       const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
-      // 1. SAVE TO ADMIN DASHBOARD INQUIRIES DATA
-      const inquiries = getInquiriesData();
+      // 1. SAVE TO ADMIN DASHBOARD INQUIRIES DATA (서버에 저장되어 관리자 대시보드에서 확인 가능)
+      const inquiries = await getInquiriesData();
       const newInquiry = {
         id: `inq-${Date.now()}`,
         date: dateStr,
@@ -501,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
         message: clientMessage || '내용 없음'
       };
       inquiries.unshift(newInquiry);
-      saveInquiriesData(inquiries);
+      await saveInquiriesData(inquiries);
 
       // 2. PREPARE TEXT FOR KAKAO / EMAIL
       currentInquiryText = `[오로라닉 AI 콘텐츠 상담 신청]
